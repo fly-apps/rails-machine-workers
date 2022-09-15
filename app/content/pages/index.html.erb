@@ -1,0 +1,11 @@
+---
+title: Fly Machine Workers
+---
+
+<article class="prose">
+  <h1><%= current_page.data.fetch("title") %></h1>
+
+  <p>This application uses Fly Machines as an elastic backend for Active Jobs.</p>
+
+  <p>Here's the image reference for the currently running application: <code><%= Fly::Release.current_image_ref %></code></p>
+</article>
