@@ -8,7 +8,7 @@ module Fly
       @api = api
     end
 
-    def current_image_ref(app)
+    def current_image_ref(app=self.class.env_app_name)
       response = @api.graphql %{
         query {
           app(name: "#{app}") {
@@ -20,6 +20,10 @@ module Fly
       }
 
       JSON.parse(response.body).dig("data", "app", "currentRelease", "imageRef")
+    end
+
+    def self.env_app_name
+      ENV["FLY_APP_NAME"]
     end
   end
 end
