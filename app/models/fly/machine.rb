@@ -9,7 +9,7 @@ module Fly
     end
 
     def current_image_ref(app)
-      @api.graphql %{
+      response = @api.graphql %{
         query {
           app(name: "#{app}") {
             currentRelease {
@@ -18,6 +18,8 @@ module Fly
           }
         }
       }
+
+      JSON.parse(response.body).dig("data", "app", "currentRelease", "imageRef")
     end
   end
 end
