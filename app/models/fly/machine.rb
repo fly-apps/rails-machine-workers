@@ -4,8 +4,9 @@ require "uri"
 module Fly
   class Machine
 
-    def initialize(api:)
+    def initialize(api:, app:)
       @api = api
+      @app = app
     end
   end
 end

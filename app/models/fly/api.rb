@@ -4,9 +4,7 @@ module Fly
   class API
     attr_reader :api_token
 
-    HOST = "127.0.0.1"
-
-    def initialize(api_token: , host: HOST)
+    def initialize(api_token: , host: self.class.host)
       @api_token = api_token
       @host = host
     end
@@ -45,6 +43,15 @@ module Fly
       def api(path="/")
         URI("http://#{@host}:4280").tap do |url|
           url.path = path
+        end
+      end
+
+      def self.host
+        case Rails.env
+        when "development"
+          "127.0.0.1"
+        else
+          "_api.internal"
         end
       end
   end
