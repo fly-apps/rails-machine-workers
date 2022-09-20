@@ -4,7 +4,9 @@ module Fly
   class API
     attr_reader :api_token
 
-    def initialize(api_token: self.class.env_auth_token, host: "127.0.0.1")
+    HOST = "127.0.0.1"
+
+    def initialize(api_token: , host: HOST)
       @api_token = api_token
       @host = host
     end
@@ -19,15 +21,16 @@ module Fly
 
     # Yikes, this is the real API. Everything else is the Machines API.
     def graphql(query)
-      Net::HTTP.post URI("https://api.fly.io/graphql"), { query: query }.to_json, headers
+      response = Net::HTTP.post URI("https://api.fly.io/graphql"), { query: query }.to_json, headers
+      JSON.parse(response.body)
     end
 
     def machine
       Machine.new(api: self)
     end
 
-    def self.env_auth_token
-      ENV["FLY_AUTH_TOKEN"]
+    def application(name: Fly.env_app_name)
+      Application.new(api: self, name: name)
     end
 
     private

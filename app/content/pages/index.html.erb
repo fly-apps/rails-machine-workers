@@ -5,7 +5,23 @@ title: Fly Machine Workers
 <article class="prose">
   <h1><%= current_page.data.fetch("title") %></h1>
 
-  <p>This application uses Fly Machines as an elastic backend for Active Jobs.</p>
+  <p>This application uses Fly Machines as an elastic backend for Active Jobs. Let's get started with the steps of how all this works!</p>
 
-  <p>Here's the image reference for the currently running application: <code><%= Fly::API.new.machine.current_image_ref %></code></p>
+  <h2>Get the name of the running Rails app</h2>
+  <p>This application runs under Fly's first generation of hosting infrastructure with the application name <code><%= Fly.current.name %></code>.</p>
+
+  <%= code_tag "app/models/fly.rb", 10..12 %>
+
+  <p>We grab this from the <code>FLY_APP_NAME</code> environment variable that's injected into the container by Fly when it's launched. If you're running this from a development environment, you'll need to set this to the name of a provisioned Fly app.</p>
+
+  <h2>Get the image name of the running app</h2>
+  <p>Here's the image reference for the currently running application: <code><%= Fly.current.image_ref %></code>.</p>
+
+  <%= code_tag "app/models/fly/application.rb", 10..20 %>
+
+  <p>We're going to use this to launch machines, but before we do that we have to create an Application for workers to run.</p>
+
+  <h2>Creating the Worker Machines app</h2>
+  <p>Ok, this is a little quirk because of the state of Fly. You see, we're transitioning off of Nomad to Machines</p>
+
 </article>

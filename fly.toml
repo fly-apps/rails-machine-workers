@@ -1,4 +1,4 @@
-# fly.toml file generated for rails-machine-workers on 2022-09-15T13:22:51-07:00
+# fly.toml file generated for rails-machine-workers on 2022-09-20T11:25:05-07:00
 
 app = "rails-machine-workers"
 kill_signal = "SIGINT"
@@ -8,7 +8,7 @@ processes = []
 [build]
   [build.args]
     BUNDLER_VERSION = "2.3.20"
-    NODE_VERSION = "18.8.0"
+    NODE_VERSION = "18.9.0"
     RUBY_VERSION = "3.1.2"
 
 [deploy]
