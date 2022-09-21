@@ -3,7 +3,7 @@ module Fly
     @api ||= Fly::API.new(api_token: env_auth_token)
   end
 
-  def self.current
+  def self.app
     api.application(name: env_app_name)
   end
 

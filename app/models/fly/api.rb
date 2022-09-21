@@ -1,4 +1,5 @@
 require "net/http"
+require "uri"
 
 module Fly
   class API
@@ -10,7 +11,21 @@ module Fly
     end
 
     def post(path, hash)
-      Net::HTTP.post api(path), hash.to_json, headers
+      pp [
+        :post,
+        api(path).to_s,
+        :hash,
+        hash,
+        :json,
+        hash.to_json
+      ]
+      Net::HTTP.post(api(path), hash.to_json, headers).tap do |response|
+        pp [
+          :response,
+          response,
+          response.body
+        ]
+      end
     end
 
     def get(path)
@@ -23,16 +38,14 @@ module Fly
       JSON.parse(response.body)
     end
 
-    def machine
-      Machine.new(api: self)
-    end
-
     def application(name: Fly.env_app_name)
       Application.new(api: self, name: name)
     end
 
     private
       def headers
+        raise "FLY_AUTH_TOKEN required" if @api_token.nil?
+
         {
             "Authorization" => "Bearer #{@api_token}",
             "Content-Type" => "application/json",
