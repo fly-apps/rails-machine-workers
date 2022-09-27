@@ -61,10 +61,14 @@ e148e444c26489  wispy-moon-9832         started sjc     rails-machine-workers:  
 9e784996fd7183  ancient-breeze-5519     started sjc     rails-machine-workers:  fdaa:0:a177:a7b:b2e2:4ba5:afc6:2          2022-09-21T20:50:25Z  2022-09-21T20:50:28Z
 06e82997b6d987  lively-water-3206       started sjc     rails-machine-workers:  fdaa:0:a177:a7b:b389:6b3:a716:2           2022-09-21T20:46:25Z  2022-09-21T20:46:27Z</code></pre>
 
-<p>Don't forget to include the app name of the workers, not the currently running application.</p>
+  <p>Don't forget to include the app name of the workers, not the currently running application.</p>
 
   <h2>ActiveJob Adapter</h2>
   <p>Well that was fun kicking off a task from the Rails console! Since we love monolith and ActiveJob, let's set this up so that when we enqueue a job, a machine is forked and the job is performed.</p>
+
+  <%= code_tag "lib/active_job/queue_adapters/fly_machine_adapter.rb" %>
+
+  <p>It's a pretty simple adapter. As you can see all it does it deserializes the job and sets up a `rails runner` command that deserializes it and runs it.</p>
 
   <h2>Additional resources</h2>
   <p>Links to documentation that can help better explain some of the APIs and tools that get this working.</p>

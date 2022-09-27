@@ -9,8 +9,12 @@ module ApplicationHelper
 
   private
     def read_code(file:, lines: nil)
-      lines = (lines.min - 1)..(lines.max - 1)
       body = File.read Rails.root.join file
-      lines ? body.lines[lines].join : body
+      if lines
+        lines = (lines.min - 1)..(lines.max - 1)
+        body.lines[lines].join
+      else
+        body
+      end
     end
 end
