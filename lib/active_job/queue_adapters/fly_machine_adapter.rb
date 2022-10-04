@@ -10,7 +10,11 @@ module ActiveJob
     class FlyMachineAdapter
       def enqueue(job) # :nodoc:
         Fly.app.machine.fork init: {
-          cmd: [ "/app/bin/rails", "runner", "ActiveJob::Base.deserialize(#{job.serialize}).run"]
+          cmd: [
+            "/app/bin/rails",
+            "runner",
+            "ActiveJob::Base.deserialize(#{job.serialize}).run"
+          ]
         }
       end
 

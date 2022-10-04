@@ -1,0 +1,7 @@
+
+<%= render_layout "application" do %>
+  <article class="prose">
+    <h1><%= current_page.data.fetch("title") %></h1>
+    <%= yield %>
+  </article>
+<% end %>

@@ -75,3 +75,9 @@ group :test do
 end
 
 gem "sitepress-rails", "~> 3.1"
+
+gem "markdown-rails", github: "sitepress/markdown-rails"
+
+gem "rouge", "~> 4.0"
+
+gem "redcarpet"

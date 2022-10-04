@@ -1,0 +1,92 @@
+---
+title: Fly Machines
+layout: article
+---
+
+This application uses Fly Machines as a scale-to-zero back-end for Active Jobs. When a background job gets kicked off, Fly provisions a Fly Machine that's a copy of this Rails app, runs the job, and powers down the machine forever. That means you're not paying for servers that run `sidekiq` and mostly sit around idle until they're given a background job. Those cost savings also mean your background works can scale up to a ridiculously large number, then scale back to 0 when nothing happens. Huzah!
+
+Security
+--------
+
+<div class="px-8 py-4 bg-red-100 rounded-2xl">
+  <p><strong>🚨🚨 DANGER! WARNING! 🚨🚨</strong></p>
+
+  <p>Fly needs the <code>fly auth token</code> of an account to provision and launch machines. If an adversary gained access to this token, they could take full control of your account and start mining cryptocurrency, delete everything, and do other mean things.</p>
+
+</div>
+
+Fly needs the `fly auth token` of an account to provision and launch machines. If an adversary gained access to this token, they could take full control of your account and start mining cryptocurrency, delete everything, and do other mean things.
+
+To mitigate this risk, you will need to create a separate Fly account to run Machines. If this account gets compromised, you should be OK with the damage an adversary could inflict. It still wouldn't be pretty, but at least they can't destroy all the resources of the primary account.
+
+Be careful with this approach!
+
+Step-by-step
+------------
+
+Now that we understand the security implications of this lil' plan, lets get going!
+
+### Get the name of the running Rails app
+
+This application runs under Fly's first generation of hosting infrastructure with the application name `<%= Fly.app.name %>`.
+
+![](app/models/fly.rb)
+
+We grab this from the `FLY_APP_NAME` environment variable that's injected into the container by Fly when it's launched. If you're running this from a development environment, you'll need to set this to the name of a provisioned Fly app.
+
+### Get the image name of the running app
+
+Here's the image reference for the currently running application: `<%= Fly.app.image_ref %>`.
+
+![](app/models/fly/application.rb)
+
+We're going to use this to launch machines, but before we do that we have to create an Application for workers to run.
+
+### Create a Machines Fly app to run the Machines
+
+Machines that are deployed to Fly need to belong to an application, so create one by running:
+
+    $ fly apps create <%= "#{Fly.app.name}-workers --machines" %>
+
+We'll use this to boot Machines for our Rails jobs!
+
+### Run a Machine
+
+Now we have everything in place needed to run a Machine. Let's try it from the console.
+
+    $ Fly.app.machine.fork init: { cmd: %w[sleep 30] }
+
+This command "forks" your existing application by booting a machine with the `image_ref` and `ENV` vars.
+
+![](app/models/fly/machine.rb)
+
+Now we can see a list of currently running machines.
+
+    rails-machine-workers [main] → fly m ls -a rails-machine-workers-workers
+    e148e446bd6989  wandering-water-7858    started sjc     rails-machine-workers:  fdaa:0:a177:a7b:b2e2:c8a6:3277:2          2022-09-21T21:51:50Z  2022-09-21T21:51:50Z
+    06e82956fe2e87  green-breeze-2572       started sjc     rails-machine-workers:  fdaa:0:a177:a7b:a160:c3d3:cbca:2          2022-09-21T20:45:29Z  2022-09-21T20:45:46Z
+    9e784935c6d383  dawn-silence-5439       started sjc     rails-machine-workers:  fdaa:0:a177:a7b:a15f:9ef5:232a:2          2022-09-21T20:45:27Z  2022-09-21T20:45:30Z
+    d5683004be048e  long-sun-7558           started sjc     rails-machine-workers:  fdaa:0:a177:a7b:2295:8b8f:c55a:2          2022-09-21T20:50:12Z  2022-09-21T20:50:15Z
+    e148e444c26489  wispy-moon-9832         started sjc     rails-machine-workers:  fdaa:0:a177:a7b:b385:41c3:238d:2          2022-09-21T20:44:56Z  2022-09-21T20:44:58Z
+    9e784996fd7183  ancient-breeze-5519     started sjc     rails-machine-workers:  fdaa:0:a177:a7b:b2e2:4ba5:afc6:2          2022-09-21T20:50:25Z  2022-09-21T20:50:28Z
+    06e82997b6d987  lively-water-3206       started sjc     rails-machine-workers:  fdaa:0:a177:a7b:b389:6b3:a716:2           2022-09-21T20:46:25Z  2022-09-21T20:46:27Z
+
+Don't forget to include the app name of the workers, not the currently running application.
+
+ActiveJob Adapter
+-----------------
+
+Well that was fun kicking off a task from the Rails console! Since we love monolith and ActiveJob, let's set this up so that when we enqueue a job, a machine is forked and the job is performed.
+
+![](lib/active_job/queue_adapters/fly_machine_adapter.rb)
+
+It's a pretty simple adapter. As you can see all it does it deserializes the job and sets up a \`rails runner\` command that deserializes it and runs it.
+
+Additional resources
+--------------------
+
+Links to documentation that can help better explain some of the APIs and tools that get this working.
+
+*   <%= link_to "Machines Docs", "https://fly.io/docs/reference/machines/" %>
+*   <%= link_to "Machines Announcement", "https://fly.io/blog/fly-machines/" %>
+*   <%= link_to "Remote IDE Machines", "https://fly.io/blog/remote-ide-machines/#run-the-machine-for-the-first-time" %>
